@@ -67,6 +67,10 @@ public class SeleniumTesting
         select.SelectByValue("1");
         
         Assert.That(select.SelectedOption.Text, Is.EqualTo("Option 1"));
+
+        select.SelectByText("Option 2");
+
+        Assert.That(select.SelectedOption.Text, Is.EqualTo("Option 2"));
     }
 
     [Test]
@@ -76,8 +80,10 @@ public class SeleniumTesting
         
         var inputField = driver.FindElement(By.CssSelector("input[type='number']"));
         inputField.SendKeys("14");
-        // Введений текст зберігається в атрибуті 'value', а не в Text
         Assert.That(inputField.GetAttribute("value"), Is.EqualTo("14"));
+
+        inputField.SendKeys(Keys.ArrowUp);
+        Assert.That(inputField.GetAttribute("value"), Is.EqualTo("15"));
 
         inputField.Clear();
         inputField.SendKeys("abc");
@@ -194,6 +200,9 @@ public class SeleniumTesting
     {
         driver.Navigate().GoToUrl(BaseUrl + "disappearing_elements");
 
+        var menuButtons = driver.FindElements(By.CssSelector(".example ul li"));
+        Assert.That(menuButtons, Has.Count.GreaterThanOrEqualTo(4));
+
         bool IsGalleryPresent()
         {
             var elements = driver.FindElements(By.LinkText("Gallery"));
@@ -223,10 +232,12 @@ public class SeleniumTesting
         driver.Navigate().GoToUrl(BaseUrl + "hovers");
         
         var avatars = driver.FindElements(By.ClassName("figure"));
-        Actions action = new Actions(driver);
-
-        action.MoveToElement(avatars[0]).Perform();
         var caption1 = avatars[0].FindElement(By.ClassName("figcaption"));
+
+        Assert.That(caption1.Displayed, Is.False);
+
+        Actions action = new Actions(driver);
+        action.MoveToElement(avatars[0]).Perform();
         
         Assert.That(caption1.Displayed, Is.True);
         Assert.That(caption1.Text, Does.Contain("name: user1"));
